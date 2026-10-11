@@ -1,2 +1,563 @@
-<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Кар’єрні детективи</title><style>body{font:18px system-ui;background:#f4f7fc;color:#18243b;margin:0}header{background:#16294d;color:white;padding:35px max(20px,calc((100% - 900px)/2))}main{max-width:900px;margin:25px auto;padding:0 18px}.card{background:white;padding:24px;border-radius:18px;margin:18px 0;box-shadow:0 3px 15px #172b4d15}button{background:#305ed4;color:white;border:0;border-radius:10px;padding:12px 18px;font:inherit;cursor:pointer;margin:5px}button:disabled{background:#a6b0c2}label{display:block;padding:10px;background:#f0f4fc;border-radius:9px;margin:8px 0}input{margin-right:12px}#feedback{font-weight:bold}small{color:#526078}.tag{color:#3458a5;font-weight:700}progress{width:100%;height:18px}footer{padding:20px;text-align:center}.portrait{display:block;width:min(100%,360px);height:auto;border-radius:16px;margin:14px auto 20px;box-shadow:0 5px 20px #172b4d22}</style></head><body><header><h1>🕵️ Кар’єрні детективи</h1><p>П’ять справ. П’ять професій. Знайдіть докази й розкрийте, хто стоїть за кожною роботою.</p></header><main><div class="card"><label for="name">Ім’я детектива</label><input id="name" placeholder="Ваше ім’я" style="font:inherit;padding:10px;width:85%"><p id="status"></p><progress id="progress" value="0" max="5"></progress></div><section id="game" class="card"></section><section id="end" class="card" hidden></section></main><footer>Працює офлайн · Результат можна зберегти у TXT</footer><script>
-const cases=[{title:'Справа 1. Невидимий захист',story:'Компанія помітила підозрілі спроби входу. Фахівець перевіряє журнали подій, шукає вразливості й пропонує захист.',q:'Яка професія найбільше відповідає опису?',a:['Дизайнер інтерфейсів','Фахівець із кібербезпеки','Біолог-дослідник'],right:1,why:'Фахівець із кібербезпеки аналізує загрози й захищає системи.'},{title:'Справа 2. Мова чисел',story:'Місто збирає дані про якість повітря. Потрібно очистити таблиці, знайти закономірності та побудувати графіки.',q:'Кого запросити до команди?',a:['Аналітика даних','3D-художника','Звукорежисера'],right:0,why:'Аналітик даних перетворює масиви даних на висновки для рішень.'},{title:'Справа 3. Зручний застосунок',story:'Учні не можуть знайти кнопку реєстрації. Фахівчиня проводить інтерв’ю, створює макети та перевіряє, чи зручно ними користуватися.',q:'Яка її спеціалізація?',a:['Мережевий адміністратор','Інженер-електронік','UX/UI-дизайнерка'],right:2,why:'UX/UI-дизайнерка досліджує потреби користувачів і проєктує інтерфейси.'},{title:'Справа 4. Розумна теплиця',story:'Пристрій вимірює вологість, автоматично вмикає полив і надсилає показники до застосунку.',q:'Який фахівець потрібен насамперед для створення пристрою?',a:['Інженер робототехніки та електроніки','Редактор текстів','Маркетолог'],right:0,why:'Інженер електроніки працює з датчиками, контролерами й автоматизацією.'},{title:'Справа 5. ШІ помиляється',story:'Модель сортує зображення, але часто помиляється на нових прикладах. Команда перевіряє набір даних, якість прогнозів і упередження.',q:'Хто найкраще допоможе дослідити проблему?',a:['Фотограф','Інженер машинного навчання','Логіст'],right:1,why:'Інженер машинного навчання перевіряє дані, навчає й оцінює моделі.'}];const portraits=["data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgMjQwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9ItCf0L7RgNGC0YDQtdGCINGE0LDRhdGW0LLRhtGPOiDQmtGW0LHQtdGA0LHQtdC30L/QtdC60LAiPgo8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgyPSIxIiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iIzgwYzllZCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzI1M2M2OSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPgo8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjI0MCIgcng9IjIwIiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjI2MCIgY3k9IjQ4IiByPSI1NSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjEyIi8+PGNpcmNsZSBjeD0iNDUiIGN5PSIyMjAiIHI9Ijc1IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuMSIvPgo8cGF0aCBkPSJNNDcgMjQwIFE1MiAxODIgMTI1IDE4MCBMMTYwIDE5OCBMMTk1IDE4MCBRMjY4IDE4MiAyNzMgMjQwIiBmaWxsPSIjMjUzYzY5IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS1vcGFjaXR5PSIuMzUiIHN0cm9rZS13aWR0aD0iMyIvPgo8cGF0aCBkPSJNMTM5IDE2MSBMMTM5IDE5NSBRMTYwIDIxNiAxODEgMTk1IEwxODEgMTYxIiBmaWxsPSIjZDZhMDdlIi8+CjxlbGxpcHNlIGN4PSIxNjAiIGN5PSIxMjAiIHJ4PSI1NyIgcnk9IjcwIiBmaWxsPSIjZDZhMDdlIi8+CjxwYXRoIGQ9Ik05OCAxMDcgUTg1IDQ2IDE0NSA0NSBRMjExIDI5IDIyNSAxMDUgTDIxMiA5MSBRMTgxIDgwIDE1NCA2NiBRMTMwIDk0IDEwNSA5M1oiIGZpbGw9IiMyYTI0MjUiLz4KPHBhdGggZD0iTTEyNiAxMTggUTEzNyAxMTIgMTQ2IDExOCBNMTc0IDExOCBRMTg0IDExMiAxOTQgMTE4IiBzdHJva2U9IiMzMDI5MjciIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIi8+CjxjaXJjbGUgY3g9IjEzNyIgY3k9IjEyMCIgcj0iMyIgZmlsbD0iIzI4MjcyYSIvPjxjaXJjbGUgY3g9IjE4NCIgY3k9IjEyMCIgcj0iMyIgZmlsbD0iIzI4MjcyYSIvPgo8cGF0aCBkPSJNMTU5IDEyNyBMMTU0IDE0NyBMMTYzIDE0OCIgc3Ryb2tlPSIjOGY1ZTRjIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTE0NCAxNTkgUTE2MCAxNjggMTc3IDE1OCIgc3Ryb2tlPSIjODc0YjRhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTQ1IDE5NSBMMTYwIDIxNyBMMTc1IDE5NSIgZmlsbD0iI2Y2ZjdmYSIvPgo8cmVjdCB4PSIxNCIgeT0iMTQiIHdpZHRoPSIxMjYiIGhlaWdodD0iMzAiIHJ4PSIxNSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjg4Ii8+Cjx0ZXh0IHg9Ijc3IiB5PSIzNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmaWxsPSIjMTcyNDNiIj7Qn9CV0KDQodCe0J3QkNCWIDE8L3RleHQ+PC9zdmc+", "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgMjQwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9ItCf0L7RgNGC0YDQtdGCINGE0LDRhdGW0LLRhtGPOiDQkNC90LDQu9GW0YLQuNC60LAg0LTQsNC90LjRhSI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjYjBkZmNlIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjQ2Yjc0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjQwIiByeD0iMjAiIGZpbGw9InVybCgjZykiLz4KPGNpcmNsZSBjeD0iMjYwIiBjeT0iNDgiIHI9IjU1IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuMTIiLz48Y2lyY2xlIGN4PSI0NSIgY3k9IjIyMCIgcj0iNzUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii4xIi8+CjxwYXRoIGQ9Ik00NyAyNDAgUTUyIDE4MiAxMjUgMTgwIEwxNjAgMTk4IEwxOTUgMTgwIFEyNjggMTgyIDI3MyAyNDAiIGZpbGw9IiMyNDZiNzQiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4zNSIgc3Ryb2tlLXdpZHRoPSIzIi8+CjxwYXRoIGQ9Ik0xMzkgMTYxIEwxMzkgMTk1IFExNjAgMjE2IDE4MSAxOTUgTDE4MSAxNjEiIGZpbGw9IiNiZDgwNWUiLz4KPGVsbGlwc2UgY3g9IjE2MCIgY3k9IjEyMCIgcng9IjU3IiByeT0iNzAiIGZpbGw9IiNiZDgwNWUiLz4KPHBhdGggZD0iTTk1IDEwOCBROTEgMzYgMTYwIDQyIFEyMjUgMzUgMjI3IDExMSBMMjE2IDEzNiBRMjEzIDg0IDE5NCA3MyBRMTU4IDk2IDExNiA3OCBMMTA1IDEzNloiIGZpbGw9IiM0NTMwMjMiLz4KPHBhdGggZD0iTTEyNiAxMTggUTEzNyAxMTIgMTQ2IDExOCBNMTc0IDExOCBRMTg0IDExMiAxOTQgMTE4IiBzdHJva2U9IiMzMDI5MjciIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIi8+CjxjaXJjbGUgY3g9IjEzNyIgY3k9IjEyMCIgcj0iMyIgZmlsbD0iIzI4MjcyYSIvPjxjaXJjbGUgY3g9IjE4NCIgY3k9IjEyMCIgcj0iMyIgZmlsbD0iIzI4MjcyYSIvPgo8cGF0aCBkPSJNMTU5IDEyNyBMMTU0IDE0NyBMMTYzIDE0OCIgc3Ryb2tlPSIjOGY1ZTRjIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTE0NCAxNTkgUTE2MCAxNjggMTc3IDE1OCIgc3Ryb2tlPSIjODc0YjRhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTQ1IDE5NSBMMTYwIDIxNyBMMTc1IDE5NSIgZmlsbD0iI2Y2ZjdmYSIvPgo8cmVjdCB4PSIxNCIgeT0iMTQiIHdpZHRoPSIxMjYiIGhlaWdodD0iMzAiIHJ4PSIxNSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjg4Ii8+Cjx0ZXh0IHg9Ijc3IiB5PSIzNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmaWxsPSIjMTcyNDNiIj7Qn9CV0KDQodCe0J3QkNCWIDI8L3RleHQ+PC9zdmc+", "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgMjQwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9ItCf0L7RgNGC0YDQtdGCINGE0LDRhdGW0LLRhtGPOiBVWC9VSSDQtNC40LfQsNC50L0iPgo8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgyPSIxIiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iI2YxYjlkNCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg3NTE3YyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPgo8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjI0MCIgcng9IjIwIiBmaWxsPSJ1cmwoI2cpIi8+CjxjaXJjbGUgY3g9IjI2MCIgY3k9IjQ4IiByPSI1NSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjEyIi8+PGNpcmNsZSBjeD0iNDUiIGN5PSIyMjAiIHI9Ijc1IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuMSIvPgo8cGF0aCBkPSJNNDcgMjQwIFE1MiAxODIgMTI1IDE4MCBMMTYwIDE5OCBMMTk1IDE4MCBRMjY4IDE4MiAyNzMgMjQwIiBmaWxsPSIjODc1MTdjIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS1vcGFjaXR5PSIuMzUiIHN0cm9rZS13aWR0aD0iMyIvPgo8cGF0aCBkPSJNMTM5IDE2MSBMMTM5IDE5NSBRMTYwIDIxNiAxODEgMTk1IEwxODEgMTYxIiBmaWxsPSIjZTRiMThjIi8+CjxlbGxpcHNlIGN4PSIxNjAiIGN5PSIxMjAiIHJ4PSI1NyIgcnk9IjcwIiBmaWxsPSIjZTRiMThjIi8+CjxwYXRoIGQ9Ik05NSAxMDggUTkxIDM2IDE2MCA0MiBRMjI1IDM1IDIyNyAxMTEgTDIxNiAxMzYgUTIxMyA4NCAxOTQgNzMgUTE1OCA5NiAxMTYgNzggTDEwNSAxMzZaIiBmaWxsPSIjM2IyNTJhIi8+CjxwYXRoIGQ9Ik0xMjYgMTE4IFExMzcgMTEyIDE0NiAxMTggTTE3NCAxMTggUTE4NCAxMTIgMTk0IDExOCIgc3Ryb2tlPSIjMzAyOTI3IiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsbD0ibm9uZSIvPgo8Y2lyY2xlIGN4PSIxMzciIGN5PSIxMjAiIHI9IjMiIGZpbGw9IiMyODI3MmEiLz48Y2lyY2xlIGN4PSIxODQiIGN5PSIxMjAiIHI9IjMiIGZpbGw9IiMyODI3MmEiLz4KPHBhdGggZD0iTTE1OSAxMjcgTDE1NCAxNDcgTDE2MyAxNDgiIHN0cm9rZT0iIzhmNWU0YyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik0xNDQgMTU5IFExNjAgMTY4IDE3NyAxNTgiIHN0cm9rZT0iIzg3NGI0YSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTE0NSAxOTUgTDE2MCAyMTcgTDE3NSAxOTUiIGZpbGw9IiNmNmY3ZmEiLz4KPHJlY3QgeD0iMTQiIHk9IjE0IiB3aWR0aD0iMTI2IiBoZWlnaHQ9IjMwIiByeD0iMTUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii44OCIvPgo8dGV4dCB4PSI3NyIgeT0iMzQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZmlsbD0iIzE3MjQzYiI+0J/QldCg0KHQntCd0JDQliAzPC90ZXh0Pjwvc3ZnPg==", "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgMjQwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9ItCf0L7RgNGC0YDQtdGCINGE0LDRhdGW0LLRhtGPOiDQoNC+0LHQvtGC0L7RgtC10YXQvdGW0LrQsCI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZjBjMThjIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjYTE1ZDJjIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjQwIiByeD0iMjAiIGZpbGw9InVybCgjZykiLz4KPGNpcmNsZSBjeD0iMjYwIiBjeT0iNDgiIHI9IjU1IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuMTIiLz48Y2lyY2xlIGN4PSI0NSIgY3k9IjIyMCIgcj0iNzUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii4xIi8+CjxwYXRoIGQ9Ik00NyAyNDAgUTUyIDE4MiAxMjUgMTgwIEwxNjAgMTk4IEwxOTUgMTgwIFEyNjggMTgyIDI3MyAyNDAiIGZpbGw9IiNhMTVkMmMiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4zNSIgc3Ryb2tlLXdpZHRoPSIzIi8+CjxwYXRoIGQ9Ik0xMzkgMTYxIEwxMzkgMTk1IFExNjAgMjE2IDE4MSAxOTUgTDE4MSAxNjEiIGZpbGw9IiNiNzc4NTUiLz4KPGVsbGlwc2UgY3g9IjE2MCIgY3k9IjEyMCIgcng9IjU3IiByeT0iNzAiIGZpbGw9IiNiNzc4NTUiLz4KPHBhdGggZD0iTTk4IDEwNyBRODUgNDYgMTQ1IDQ1IFEyMTEgMjkgMjI1IDEwNSBMMjEyIDkxIFExODEgODAgMTU0IDY2IFExMzAgOTQgMTA1IDkzWiIgZmlsbD0iIzMzMjUxZSIvPgo8cGF0aCBkPSJNMTI2IDExOCBRMTM3IDExMiAxNDYgMTE4IE0xNzQgMTE4IFExODQgMTEyIDE5NCAxMTgiIHN0cm9rZT0iIzMwMjkyNyIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIGZpbGw9Im5vbmUiLz4KPGNpcmNsZSBjeD0iMTM3IiBjeT0iMTIwIiByPSIzIiBmaWxsPSIjMjgyNzJhIi8+PGNpcmNsZSBjeD0iMTg0IiBjeT0iMTIwIiByPSIzIiBmaWxsPSIjMjgyNzJhIi8+CjxwYXRoIGQ9Ik0xNTkgMTI3IEwxNTQgMTQ3IEwxNjMgMTQ4IiBzdHJva2U9IiM4ZjVlNGMiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMTQ0IDE1OSBRMTYwIDE2OCAxNzcgMTU4IiBzdHJva2U9IiM4NzRiNGEiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNDUgMTk1IEwxNjAgMjE3IEwxNzUgMTk1IiBmaWxsPSIjZjZmN2ZhIi8+CjxyZWN0IHg9IjE0IiB5PSIxNCIgd2lkdGg9IjEyNiIgaGVpZ2h0PSIzMCIgcng9IjE1IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuODgiLz4KPHRleHQgeD0iNzciIHk9IjM0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjE0IiBmb250LWZhbWlseT0iQXJpYWwiIGZpbGw9IiMxNzI0M2IiPtCf0JXQoNCh0J7QndCQ0JYgNDwvdGV4dD48L3N2Zz4=", "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgMjQwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9ItCf0L7RgNGC0YDQtdGCINGE0LDRhdGW0LLRhtGPOiDQnNCw0YjQuNC90L3QtSDQvdCw0LLRh9Cw0L3QvdGPIj4KPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNiN2M5ZWQiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMzYzU2OGYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIyNDAiIHJ4PSIyMCIgZmlsbD0idXJsKCNnKSIvPgo8Y2lyY2xlIGN4PSIyNjAiIGN5PSI0OCIgcj0iNTUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii4xMiIvPjxjaXJjbGUgY3g9IjQ1IiBjeT0iMjIwIiByPSI3NSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjEiLz4KPHBhdGggZD0iTTQ3IDI0MCBRNTIgMTgyIDEyNSAxODAgTDE2MCAxOTggTDE5NSAxODAgUTI2OCAxODIgMjczIDI0MCIgZmlsbD0iIzNjNTY4ZiIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjMiLz4KPHBhdGggZD0iTTEzOSAxNjEgTDEzOSAxOTUgUTE2MCAyMTYgMTgxIDE5NSBMMTgxIDE2MSIgZmlsbD0iI2M5OGU2ZSIvPgo8ZWxsaXBzZSBjeD0iMTYwIiBjeT0iMTIwIiByeD0iNTciIHJ5PSI3MCIgZmlsbD0iI2M5OGU2ZSIvPgo8cGF0aCBkPSJNOTggMTA3IFE4NSA0NiAxNDUgNDUgUTIxMSAyOSAyMjUgMTA1IEwyMTIgOTEgUTE4MSA4MCAxNTQgNjYgUTEzMCA5NCAxMDUgOTNaIiBmaWxsPSIjMWYyNjM0Ii8+CjxwYXRoIGQ9Ik0xMjYgMTE4IFExMzcgMTEyIDE0NiAxMTggTTE3NCAxMTggUTE4NCAxMTIgMTk0IDExOCIgc3Ryb2tlPSIjMzAyOTI3IiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsbD0ibm9uZSIvPgo8Y2lyY2xlIGN4PSIxMzciIGN5PSIxMjAiIHI9IjMiIGZpbGw9IiMyODI3MmEiLz48Y2lyY2xlIGN4PSIxODQiIGN5PSIxMjAiIHI9IjMiIGZpbGw9IiMyODI3MmEiLz4KPHBhdGggZD0iTTE1OSAxMjcgTDE1NCAxNDcgTDE2MyAxNDgiIHN0cm9rZT0iIzhmNWU0YyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+CjxwYXRoIGQ9Ik0xNDQgMTU5IFExNjAgMTY4IDE3NyAxNTgiIHN0cm9rZT0iIzg3NGI0YSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTE0NSAxOTUgTDE2MCAyMTcgTDE3NSAxOTUiIGZpbGw9IiNmNmY3ZmEiLz4KPHJlY3QgeD0iMTQiIHk9IjE0IiB3aWR0aD0iMTI2IiBoZWlnaHQ9IjMwIiByeD0iMTUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii44OCIvPgo8dGV4dCB4PSI3NyIgeT0iMzQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZmlsbD0iIzE3MjQzYiI+0J/QldCg0KHQntCd0JDQliA1PC90ZXh0Pjwvc3ZnPg=="];let i=0,answers=[];const $=id=>document.getElementById(id);function render(){if(i===cases.length){finish();return}let c=cases[i];$('status').textContent=`Розкрито справ: ${i} із ${cases.length}`;$('progress').value=i;$('game').innerHTML=`<span class="tag">СПРАВА ${i+1} / ${cases.length}</span><h2>${c.title}</h2><img class="portrait" src="${portraits[i]}" alt="Ілюстрація персонажа справи ${i+1}"><p>${c.story}</p><h3>${c.q}</h3><div id="choices">${c.a.map((x,j)=>`<label><input type="radio" name="answer" value="${j}">${x}</label>`).join('')}</div><button id="check">Перевірити версію</button><p id="feedback" aria-live="polite"></p><button id="next" hidden>Наступна справа →</button>`;$('check').onclick=()=>{let s=document.querySelector('input[name=answer]:checked');if(!s){$('feedback').textContent='Оберіть відповідь.';return}let ok=+s.value===c.right;answers.push({case:c.title,chosen:c.a[+s.value],correct:c.a[c.right],ok});$('feedback').textContent=(ok?'✅ Версію підтверджено. ':'🔎 Версія не підтвердилася. ')+c.why;$('check').disabled=true;document.querySelectorAll('input[name=answer]').forEach(x=>x.disabled=true);$('next').hidden=false};$('next').onclick=()=>{i++;render()}}function finish(){$('game').hidden=true;$('progress').value=5;$('status').textContent='Усі справи завершено';let score=answers.filter(x=>x.ok).length;$('end').hidden=false;$('end').innerHTML=`<h2>🎉 Розслідування завершено!</h2><p>Правильних відповідей: <strong>${score} із 5</strong>.</p><p>Ви познайомилися з п’ятьма сучасними професіями. Подумайте, яка з них найбільше відповідає вашим інтересам.</p><button id="save">Зберегти звіт TXT</button><button id="restart">Пройти знову</button>`;$('save').onclick=()=>{let txt=`Кар’єрні детективи\nУчасник: ${$('name').value||'Без імені'}\nРезультат: ${score}/5\n\n`+answers.map(x=>`${x.case}\nВідповідь: ${x.chosen}\nПравильно: ${x.correct}\n${x.ok?'Правильно':'Помилка'}`).join('\n\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));a.download='career-detectives-result.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};$('restart').onclick=()=>location.reload()}render();</script></body></html>
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кар'єрні детективи — 4 несподівані повороти</title>
+<style>
+:root {
+  --ink: #202942;
+  --muted: #69758a;
+  --purple: #7357dc;
+  --light: #f5f3ff;
+  --line: #e4e5ef;
+  --green: #087f65;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #f7f8fc;
+  color: var(--ink);
+  font: 16px/1.55 system-ui, sans-serif;
+}
+header {
+  padding: 38px 20px;
+  text-align: center;
+  background: linear-gradient(125deg,#ece8ff,#e7f6ff);
+}
+h1 { font-size: clamp(27px,4vw,42px); margin: 0; }
+h2 { font-size: 23px; margin: 0 0 14px; }
+h3 { margin: 0 0 10px; }
+.subtitle { color: #555c7b; font-weight: 600; }
+main { max-width: 1060px; margin: auto; padding: 24px 16px 60px; }
+.panel {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 25px;
+  margin: 18px 0;
+  box-shadow: 0 5px 20px #25305a08;
+}
+.eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  color: var(--purple);
+  text-transform: uppercase;
+}
+.students {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+.student {
+  border: 2px solid var(--line);
+  background: white;
+  border-radius: 16px;
+  padding: 12px 7px;
+  cursor: pointer;
+  color: var(--ink);
+  font: inherit;
+}
+.student.active {
+  border-color: var(--purple);
+  background: var(--light);
+}
+.student strong { display: block; margin-top: 6px; }
+.student small { color: var(--muted); }
+.avatar {
+  width: 100%;
+  max-width: 105px;
+  aspect-ratio: 1;
+  display: block;
+  margin: auto;
+}
+.profile {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 22px;
+  align-items: center;
+}
+.profile .avatar { max-width: 160px; }
+.profile p { margin: 7px 0; }
+.tag {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 4px 11px;
+  background: #eee9ff;
+  color: #5a3cb7;
+  font-weight: 700;
+  font-size: 13px;
+}
+label {
+  display: block;
+  margin: 15px 0 6px;
+  font-weight: 650;
+}
+input[type=text], textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #cfd4e3;
+  border-radius: 11px;
+  padding: 11px 13px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+textarea { min-height: 75px; resize: vertical; }
+input:focus, textarea:focus {
+  outline: 2px solid #b9adff;
+  border-color: var(--purple);
+}
+.round {
+  background: var(--light);
+  padding: 18px;
+  border-radius: 15px;
+  margin: 18px 0;
+}
+.reveal {
+  background: #fff7dd;
+  border-left: 5px solid #e6a72d;
+  padding: 17px;
+  border-radius: 12px;
+  margin: 15px 0;
+}
+.progress {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0;
+}
+.progress span {
+  height: 8px;
+  flex: 1;
+  background: #e6e8f0;
+  border-radius: 10px;
+}
+.progress .done { background: var(--purple); }
+.options { display: flex; flex-wrap: wrap; gap: 10px; }
+.options label {
+  margin: 0;
+  font-weight: 500;
+  background: #f7f8fc;
+  border: 1px solid var(--line);
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+button.action {
+  background: var(--purple);
+  border: none;
+  color: white;
+  border-radius: 11px;
+  padding: 12px 19px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+button.secondary {
+  background: #edf0f6;
+  color: var(--ink);
+}
+button:disabled { opacity: .4; cursor: not-allowed; }
+.note { color: var(--muted); font-size: 14px; }
+.hidden { display: none; }
+#report {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f7f8fc;
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+footer { text-align: center; padding: 25px; color: var(--muted); }
+@media(max-width:700px) {
+  .students { grid-template-columns: repeat(3,1fr); }
+  .profile { grid-template-columns: 105px 1fr; }
+  .panel { padding: 17px; }
+}
+@media(max-width:440px) {
+  .students { grid-template-columns: repeat(2,1fr); }
+  .profile { display: block; text-align: center; }
+}
+@media print {
+  header, #selection, #workspace, .actions, footer { display: none !important; }
+  body { background: white; }
+  #result { display: block !important; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🕵️ Кар'єрні детективи: 4 несподівані повороти</h1>
+  <p class="subtitle">Інтерактивна гра для 5 команд · 15–20 хвилин</p>
+  <p>Кожна команда обирає учня, пропонує три професійні напрями,
+  а потім відкриває чотири нові факти та переглядає свій вибір.</p>
+</header>
+
+<main>
+<section class="panel" id="selection">
+  <div class="eyebrow">Крок 1 · Оберіть учня</div>
+  <div class="students" id="studentList"></div>
+</section>
+
+<section class="panel">
+  <div class="profile">
+    <div id="portrait"></div>
+    <div>
+      <span class="tag">17 років · 11 клас</span>
+      <h2 id="studentName"></h2>
+      <p id="description"></p>
+    </div>
+  </div>
+  <label for="team">Назва команди</label>
+  <input type="text" id="team" placeholder="Наприклад, Команда дослідників">
+</section>
+
+<section class="panel" id="workspace">
+  <div class="eyebrow" id="stepLabel"></div>
+  <div class="progress" id="progress"></div>
+  <div class="round">
+    <h2 id="roundTitle"></h2>
+    <p id="roundDescription"></p>
+  </div>
+  <div class="reveal hidden" id="reveal"></div>
+
+  <label for="career1">Професійний напрям 1</label>
+  <input id="career1" type="text" placeholder="Ваша перша гіпотеза">
+
+  <label for="career2">Професійний напрям 2</label>
+  <input id="career2" type="text" placeholder="Ваша друга гіпотеза">
+
+  <label for="career3">Професійний напрям 3</label>
+  <input id="career3" type="text" placeholder="Ваша третя гіпотеза">
+
+  <label for="reason">Чому саме ці напрями?</label>
+  <textarea id="reason" placeholder="Обґрунтуйте вибір команди"></textarea>
+
+  <label for="question">Яке запитання ви поставили б самому учню?</label>
+  <textarea id="question" placeholder="Запитання, яке допоможе краще зрозуміти його інтереси"></textarea>
+
+  <div id="changes" class="hidden">
+    <label>Наскільки новий факт змінив вашу гіпотезу?</label>
+    <div class="options">
+      <label><input type="radio" name="impact" value="Повністю змінили"> Повністю змінили</label>
+      <label><input type="radio" name="impact" value="Частково змінили"> Частково змінили</label>
+      <label><input type="radio" name="impact" value="Не змінили"> Не змінили</label>
+    </div>
+    <label for="trial">Яку професійну пробу запропонуєте учневі?</label>
+    <textarea id="trial" placeholder="Невелика реальна дія або проєкт, що допоможе перевірити інтерес"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="action secondary" id="back">← Назад</button>
+    <button class="action" id="forward">Відкрити перший факт →</button>
+  </div>
+  <p class="note">Відповіді автоматично зберігаються у цьому браузері.</p>
+</section>
+
+<section class="panel hidden" id="result">
+  <div class="eyebrow">Підсумок розслідування</div>
+  <h2>Звіт команди</h2>
+  <div id="report"></div>
+  <div class="actions">
+    <button class="action" id="download">⬇ Завантажити звіт</button>
+    <button class="action secondary" id="print">Друкувати / PDF</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Обговорення після гри</h2>
+  <p>Яка з чотирьох змін найбільше вплинула на професійні рекомендації?
+  Чи були рішення, які не змінилися? Що варто запропонувати учневі
+  замість остаточної поради щодо професії?</p>
+  <p><strong>Фінальна теза:</strong> Ми не вгадуємо майбутню професію учня —
+  ми допомагаємо йому досліджувати власні можливості та перевіряти різні маршрути.</p>
+</section>
+</main>
+
+<footer>Кар'єрні детективи · Практична гра з кар'єрної орієнтації</footer>
+
+<script>
+const students = [
+  {
+    name: "Артем", role: "Логік", color: "#d9d1ff",
+    skin: "#e7ad82", hair: "#343048", shirt: "#5961b5",
+    description: "Любить математику, програмування та логічні задачі. Самостійно створює програми, бере участь в олімпіадах. Не любить публічних виступів.",
+    facts: [
+      "Артем організував шкільний хакатон. Неочікувано для себе отримав задоволення від координації команди.",
+      "Артем розповів, що хоче створювати технології, які допомагають людям вирішувати реальні проблеми.",
+      "Його мрія — працювати в міжнародній команді, подорожувати й не проводити весь день наодинці з кодом.",
+      "У командному проєкті Артему найбільше сподобалося досліджувати потреби користувачів і планувати продукт. Але програмувати він теж хоче."
+    ]
+  },
+  {
+    name: "Софія", role: "Дослідниця", color: "#c7f0df",
+    skin: "#b87c58", hair: "#28253b", shirt: "#328f85",
+    description: "Любить біологію, хімію, дослідження й аналіз даних. Легко спілкується з людьми, але поки не цікавиться програмуванням.",
+    facts: [
+      "Софія не хоче ставати лікаркою та лікувати пацієнтів, хоча добре знає біологію.",
+      "Її найбільше захоплюють екологія, кліматичні зміни та аналіз природних явищ.",
+      "Софія самостійно почала вивчати Python, щоб аналізувати дані екологічних вимірювань.",
+      "Вона хоче поєднувати роботу з даними з польовими дослідженнями, а не сидіти весь час за комп'ютером."
+    ]
+  },
+  {
+    name: "Максим", role: "Креатор", color: "#ffe1bf",
+    skin: "#d79a72", hair: "#4b3028", shirt: "#d17a4c",
+    description: "Монтує відео, створює цифрові ілюстрації, веде сторінки у соцмережах і експериментує з генеративним ШІ.",
+    facts: [
+      "Максим не хоче бути блогером чи інфлюенсером. Постійна публічність його виснажує.",
+      "Йому подобаються тривимірні світи, візуальні ефекти та комп'ютерні ігри.",
+      "Максим вивчає Blender, ігровий рушій і почав опановувати основи програмування.",
+      "Під час геймджему він найбільше захопився створенням ігрового середовища та анімації, а не просуванням гри."
+    ]
+  },
+  {
+    name: "Дарина", role: "Організаторка", color: "#ffd9e8",
+    skin: "#e6ac89", hair: "#633f36", shirt: "#b95d92",
+    description: "Організовує шкільні заходи, вміє домовлятися, планувати роботу команди й активно користується цифровими інструментами.",
+    facts: [
+      "Дарина зізналася, що постійне спілкування її виснажує. Вона не хоче все життя керувати великими командами.",
+      "Їй цікаво помічати, чому одними сайтами зручно користуватися, а іншими — ні.",
+      "Дарина провела інтерв'ю з користувачами шкільного сайту й запропонувала покращення навігації.",
+      "Під час роботи над прототипом їй найбільше сподобалися UX-дослідження й тестування з користувачами, а не візуальне оформлення."
+    ]
+  },
+  {
+    name: "Назар", role: "Винахідник", color: "#d1e9ff",
+    skin: "#d49b78", hair: "#594334", shirt: "#4079ad",
+    description: "Любить фізику, робототехніку, Arduino, електроніку. Конструює незвичні пристрої та ремонтує техніку.",
+    facts: [
+      "Назар не хоче працювати в ремонті техніки. Його більше цікавить створення принципово нових пристроїв.",
+      "Він хоче винаходити технології, які допомагають людям з інвалідністю.",
+      "Назар зацікавився біомеханікою, протезуванням і медичною робототехнікою. Почав додатково вивчати біологію.",
+      "Він створив прототип роботизованої руки. Найбільше його захопили експерименти та тестування пристрою з урахуванням потреб користувачів."
+    ]
+  }
+];
+
+const $ = id => document.getElementById(id);
+const fields = ["career1","career2","career3","reason","question","trial"];
+const storageKey = "career-detectives-v2";
+let state = { student: 0, step: 0, team: "", answers: {} };
+
+try {
+  const saved = JSON.parse(localStorage.getItem(storageKey));
+  if (saved && typeof saved === "object") {
+    state = {...state, ...saved};
+  }
+} catch (e) {}
+
+if (!Number.isInteger(state.student) || state.student < 0 || state.student > 4) state.student = 0;
+if (!Number.isInteger(state.step) || state.step < 0 || state.step > 4) state.step = 0;
+if (!state.answers || typeof state.answers !== "object") state.answers = {};
+
+function portrait(s) {
+  return `
+  <svg class="avatar" viewBox="0 0 180 180" role="img"
+       aria-label="Ілюстративний портрет">
+    <circle cx="90" cy="90" r="87" fill="${s.color}"/>
+    <ellipse cx="90" cy="169" rx="66" ry="46" fill="${s.shirt}"/>
+    <rect x="77" y="115" width="26" height="30" rx="10" fill="${s.skin}"/>
+    <ellipse cx="90" cy="85" rx="43" ry="51" fill="${s.skin}"/>
+    <path d="M47 83 Q36 24 88 24 Q147 20 133 88
+             L125 63 Q106 67 92 48 Q78 67 49 68Z"
+          fill="${s.hair}"/>
+    <circle cx="74" cy="88" r="3.5" fill="#272334"/>
+    <circle cx="106" cy="88" r="3.5" fill="#272334"/>
+    <path d="M79 110 Q90 119 102 110"
+          fill="none" stroke="#9b564f" stroke-width="3"
+          stroke-linecap="round"/>
+    <path d="M66 76 Q74 71 81 76 M99 76 Q107 71 114 76"
+          fill="none" stroke="${s.hair}" stroke-width="3"
+          stroke-linecap="round"/>
+    <circle cx="90" cy="90" r="86" fill="none"
+            stroke="#ffffff" stroke-width="4"/>
+  </svg>`;
+}
+
+function key() {
+  return state.student + "-" + state.step;
+}
+
+function save() {
+  const a = {};
+  fields.forEach(id => a[id] = $(id).value);
+  a.impact = document.querySelector('input[name="impact"]:checked')?.value || "";
+  state.answers[key()] = a;
+  state.team = $("team").value;
+  localStorage.setItem(storageKey, JSON.stringify(state));
+}
+
+function loadAnswer() {
+  const a = state.answers[key()] || {};
+  fields.forEach(id => $(id).value = a[id] || "");
+  document.querySelectorAll('input[name="impact"]').forEach(r => {
+    r.checked = r.value === a.impact;
+  });
+}
+
+function render() {
+  const s = students[state.student];
+
+  $("studentList").innerHTML = students.map((item,i) => `
+    <button type="button" class="student ${i === state.student ? "active" : ""}"
+            data-student="${i}">
+      ${portrait(item)}
+      <strong>${item.name}</strong>
+      <small>${item.role}</small>
+    </button>`).join("");
+
+  document.querySelectorAll("[data-student]").forEach(button => {
+    button.addEventListener("click", () => {
+      save();
+      state.student = Number(button.dataset.student);
+      state.step = 0;
+      render();
+    });
+  });
+
+  $("portrait").innerHTML = portrait(s);
+  $("studentName").textContent = s.name + " · " + s.role;
+  $("description").textContent = s.description;
+  $("team").value = state.team;
+
+  $("stepLabel").textContent = "Крок " + (state.step + 1) + " із 5";
+  $("progress").innerHTML = Array.from({length:5}, (_,i) =>
+    `<span class="${i <= state.step ? "done" : ""}"></span>`
+  ).join("");
+
+  const first = state.step === 0;
+  $("roundTitle").textContent = first
+    ? "Раунд 1. Перша гіпотеза"
+    : "Раунд " + (state.step + 1) + ". Перегляньте гіпотезу";
+
+  $("roundDescription").textContent = first
+    ? "Запропонуйте три професійні напрями на основі короткого опису учня."
+    : "Прочитайте новий факт. Чи змінився ваш вибір? За потреби уточніть три професійні напрями й поясніть рішення.";
+
+  $("reveal").classList.toggle("hidden", first);
+  $("changes").classList.toggle("hidden", first);
+
+  if (!first) {
+    $("reveal").textContent = "🎴 Несподіваний факт " +
+      state.step + ": " + s.facts[state.step - 1];
+  }
+
+  $("back").disabled = first;
+  $("forward").textContent = state.step === 4
+    ? "Завершити розслідування ✓"
+    : first
+      ? "Відкрити перший факт →"
+      : "Відкрити наступний факт →";
+
+  loadAnswer();
+
+  $("result").classList.add("hidden");
+}
+
+function reportText() {
+  const s = students[state.student];
+  let text = "КАР'ЄРНІ ДЕТЕКТИВИ\n";
+  text += "Команда: " + (state.team || "Без назви") + "\n";
+  text += "Учень: " + s.name + " · " + s.role + "\n";
+  text += "Початковий опис: " + s.description + "\n\n";
+
+  for (let i = 0; i < 5; i++) {
+    const a = state.answers[state.student + "-" + i] || {};
+    text += i === 0
+      ? "РАУНД 1. ПЕРША ГІПОТЕЗА\n"
+      : "РАУНД " + (i + 1) + ". НОВИЙ ФАКТ " + i + "\n";
+
+    if (i > 0) text += s.facts[i - 1] + "\n";
+
+    text += "Напрям 1: " + (a.career1 || "—") + "\n";
+    text += "Напрям 2: " + (a.career2 || "—") + "\n";
+    text += "Напрям 3: " + (a.career3 || "—") + "\n";
+    text += "Обґрунтування: " + (a.reason || "—") + "\n";
+    text += "Запитання учню: " + (a.question || "—") + "\n";
+
+    if (i > 0) {
+      text += "Вплив нового факту: " + (a.impact || "—") + "\n";
+      text += "Професійна проба: " + (a.trial || "—") + "\n";
+    }
+    text += "\n";
+  }
+
+  text += "ПИТАННЯ ДЛЯ ОБГОВОРЕННЯ\n";
+  text += "Яка зміна найбільше вплинула на рішення команди?\n";
+  text += "Чи залишилися початкові гіпотези?\n";
+  text += "Що запропонувати учневі замість остаточної поради?\n\n";
+  text += "ВИСНОВОК\n";
+  text += "Ми не вгадуємо майбутню професію учня — ";
+  text += "ми допомагаємо йому досліджувати власні можливості ";
+  text += "та перевіряти різні маршрути.\n";
+  return text;
+}
+
+function showReport() {
+  $("report").textContent = reportText();
+  $("result").classList.remove("hidden");
+  $("result").scrollIntoView({behavior:"smooth"});
+}
+
+$("back").addEventListener("click", () => {
+  save();
+  if (state.step > 0) {
+    state.step--;
+    render();
+  }
+});
+
+$("forward").addEventListener("click", () => {
+  save();
+  if (state.step < 4) {
+    state.step++;
+    render();
+    $("workspace").scrollIntoView({behavior:"smooth"});
+  } else {
+    showReport();
+  }
+});
+
+$("team").addEventListener("input", save);
+fields.forEach(id => $(id).addEventListener("input", save));
+document.querySelectorAll('input[name="impact"]').forEach(r => {
+  r.addEventListener("change", save);
+});
+
+$("download").addEventListener("click", () => {
+  save();
+  const blob = new Blob(["\uFEFF" + reportText()], {
+    type: "text/plain;charset=utf-8"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "karierni-detektyvy-" +
+    students[state.student].name.toLowerCase() + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+$("print").addEventListener("click", () => {
+  save();
+  $("report").textContent = reportText();
+  window.print();
+});
+
+render();
+</script>
+</body>
+</html>
